@@ -5,15 +5,90 @@
     스쿠터끼리는 같은 모델이므로, 어느 지점에서 어느 지점까지
     이동할때 필요한 연료 소비량이 같다고 가정한다. 
 
+Basic Assumptions
+1. 차량은 station에서 대기한다.
+2. 사람은 station에서 탈 수도 있지만, 원하는 도로지점에서 차량을 부를 수 있다.
+3. 불러진 스쿠터를 사람이 탈 때는 자율주행이 아니라, 사람이 운전을 한다.
+4. 사람이 운전할 때는 stations을 제외한 곳들에서도 내릴 수 있다. 
+5. 차량이 내린 후에는 스스로 자율주행으로 station에 와야한다.
+6. 차량의 배터리 용량은 학교 내에서 가장 먼 지점을 왕복할 정도로 충전되어있다.
+7. 차량이 station에 대기할때는 새로운 배터리로 갈아낄 수 있어, 바로 출발 가능하다.
+8. 자율주행 중인 차량은 지나가는 길에 dial-a-ride가 있어도 가지 않는다. 충전해야하기 때문에.
+9. 차량들은 전부 homogenous하다. 같은 cost를 가진다. 
 '''
+# 1. edge map 과 node map을 지정.
 import csv
 import numpy as np
+no = list()
+f = open('kaist_node.csv','r')
+n = csv.reader(f)
+for row in n:
+    no.append(row)
+node = np.array(no[1:])
 
-f = open('kaist_edge.csv','r')
-edge = csv.reader(f)
-print(edge[0])
+Node=node[:,0]
+Node_yx = node[:,1:3]
+Node_road_count = node[:,3]
+f.close
 
-# 1. 
+# ! kaist_edge.csv했을 때 name이 깨진다. 
+
+
+
+'''
+2. Station 지정해주기 <- special node일 뿐
+일단 8개로 결정. 창의관, 기계동, 정문, N1, 희망관, 쪽문, 신뢰관, 도서관
+Station : staion들의 정보를 모아둔 것.
+'''
+num = 8 # Stations number
+idx = np.random.choice(len(Node),num)
+stations = Node[idx]
+stations_yx = Node_yx[idx]
+stations_road_count = Node_road_count[idx]
+
+# LIST 1. 수요 예측하는 list 만들기
+T = 10
+# Scoopter number is 20
+N = 20 
+demands = np.random.default_rng().dirichlet(np.ones(num-1),size=1)
+demands = [round(v) for v in demands[0]*N]
+print(demands)
+Demand = []
+for i in range(T):
+    for j in range(num):
+        demands = np.random.default_rng().dirichlet(np.ones(num),size=1)
+        demands = [round(v) for v in demands[0]*N]
+        Demand.append(demands)
+print(Demand)
+
+# 3. node에 연결된 edge 찾는 함수 만들기
+
+''' 
+4. 위치 지정하는 함수 만들기 
+1) Node를 random하게 결정.
+2) Node에서 연결된 edge를 random하게 결정
+3) 그 edge들에서 parameter를 random하게 결정 [0,1]
+
+'''
+
+
+# 6. Benefit 함수 짜기
+
+
+
+'''
+Frameworks
+
+1. 초기 수요에(LIST 2) 맞게 station들에 스쿠터를 배치
+2. Dial-a-ride 일때, 함수 4 써서 부른 사람의 위치 지정
+3. 가장 가까운 station에서 dial-a-ride한 사람에게 차량을 배치
+4. 사람이 수동주행, 함수 4 써서 도착점 정하기
+5. 도착지점 정한 후에, Benefit 함수를 사용하여, 차량이 돌아갈 station을 결정하기
+6. Repeat 2-5 until it reaches maximum time.
+
+'''
+
+
 
 
 
