@@ -9,6 +9,7 @@ Basic Assumptions
 7. 차량이 station에 대기할때는 새로운 배터리로 갈아낄 수 있어, 바로 출발 가능하다.
 8. 자율주행 중인 차량은 지나가는 길에 dial-a-ride가 있어도 가지 않는다. 충전해야하기 때문에.
 9. 차량들은 전부 homogenous하다. 같은 cost를 가진다. 
+10. Node와 Node를 연결하는 길은 하나이다. 
 '''
 # 1. edge map 과 node map을 지정.
 import csv
@@ -36,8 +37,9 @@ edge = np.array(nodd[1:])
 
 edge_u = edge[:,0]
 edge_v = edge[:,1]
+edge_len = edge[:,2]
+edge_reversed = edge[]
 f.close
-print(edge_u)
 
 '''
 2. Station 지정해주기 <- special node일 뿐
@@ -81,16 +83,16 @@ Node_destination = edge_v[idx]
 print(Node_destination)
 
 # 3.5. distance 함수짜기, node와 node 사이에 연결된 edge를 따라서.
-def distance_nodes(osmid1,osmid2,edge_idx,alpha):
+def distance_nodes(osmid1,osmid2):
     # osmid1 : start node
     # osmid2 : destination node
     # edge_idx : edges between start node and destination node
-    # alpha : constants
     start_idx = np.where(Node == osmid1)
+    start_yx = Node_yx[start_idx]
     end_idx = np.where(Node == osmid2)
-    
-
-
+    end_yx = Node_yx[end_idx]
+    distance = start_yx - end_yx
+    return distance
 
 ''' 
 4. 위치 지정하는 함수 만들기 
@@ -104,20 +106,13 @@ def sample_location():
     rand_edge = np.random.choice(linked_edge(rand_node),1)
     rand_destination_node = edge_v[rand_edge]
     rand_alpha = random.random()
-    sample_location =  rand_node + rand_alpha * distance(rand_node,rand_destination_node,rand_edge,rand_alpha)
+    sample_location =  rand_node + rand_alpha * distance_nodes(rand_node,rand_destination_node)
     return sample_location
-
-
-
-
-# 6. Benefit 함수 짜기
-
-
 
 '''
 Frameworks
 
-1. 초기 수요에(LIST 2) 맞게 station들에 스쿠터를 배치
+1. 초기 수요에(LIST 1) 맞게 station들에 스쿠터를 배치
 2. Dial-a-ride 일때, 함수 4 써서 부른 사람의 위치 지정
 3. 가장 가까운 station에서 dial-a-ride한 사람에게 차량을 배치
 4. 사람이 수동주행, 함수 4 써서 도착점 정하기
@@ -125,14 +120,9 @@ Frameworks
 6. Repeat 2-5 until it reaches maximum time.
 
 '''
+def cost():
+    for i in len(edge):
 
-
-
-
-
-
-'''
-def cost(I,J):
     #아마도 lookup table을 만들어서 미리 정해둬도 괜찮지 않을까싶네요.
 def benefit(i,j):
     # 앞쪽이 무조건 start 지점, 뒤쪽이 목적지. 
@@ -173,14 +163,12 @@ if D_k[i][j] > len(current_vehicle(i)):
     # 차량이 더 필요하다. 
     Bring_scoopter((D_k[i][j] - current_vehicle_number(i)),i)
 else: # 지점 i에서의 현재 수요보다 지점 i에 있는 차량수가 많을 경우 : 차량이 좀 남는다.
-    여기서 가장 benefit이 높은 목적지 P를 정한다. 
+    #여기서 가장 benefit이 높은 목적지 P를 정한다. 
     P = []
     for j in len(목적지들의 list):
         pp = argmax(benefit(i,j))
         P.append(pp)
 
     for _ in len(P):
-        cand = rand.uniform.([current_vehicle(i)]) <- 재배치될 차량의 후보
+        cand = rand.uniform.([current_vehicle(i)]) #<- 재배치될 차량의 후보
         Go(cand,J)
-    
-'''
