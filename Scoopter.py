@@ -34,11 +34,14 @@ n = csv.reader(ff)
 for row in n:
     nodd.append(row)
 edge = np.array(nodd[1:])
-
+# u,v,key,osmid,
+# name,highway,oneway,
+# reversed,length,lanes,
+# geometry,maxspeed,access,
+# service,bridge,junction
 edge_u = edge[:,0]
 edge_v = edge[:,1]
 edge_len = edge[:,2]
-edge_reversed = edge[]
 f.close
 
 '''
@@ -104,7 +107,8 @@ def distance_nodes(osmid1,osmid2):
 def sample_location():
     rand_node = np.random.choice(Node,1)
     rand_edge = np.random.choice(linked_edge(rand_node),1)
-    rand_destination_node = edge_v[rand_edge]
+    if  edge[rand_edge,7] == True:
+        rand_destination_node = edge_v[rand_edge]
     rand_alpha = random.random()
     sample_location =  rand_node + rand_alpha * distance_nodes(rand_node,rand_destination_node)
     return sample_location
@@ -139,8 +143,7 @@ def Reward(i,j):
         return + 10
     # 수요보다 많은데 굳이 가야하나
     elif (D_k[i][j] - len(current_vehicle(j))) < 0 :
-        return 0
-        
+        return 0     
 def Bring_scoopter(n,i):
     #cand_site는 지점 i까지 가는 지점의 후보들 중 benefit이 가장 큰 것을 가려낸다. 
     cand_site = []
@@ -148,7 +151,7 @@ def Bring_scoopter(n,i):
         cand_site.append(benefit(m,i))
     cand_site.sort(benefit이 큰 것부터 배열.)
     # cand_site[0] : best benefit이고, cand_site에는 best benefit인 scoopter의 갯수가 있다. 
-    While True:
+    while True:
         number = 0
         for _ in len(number):
             # benefit이 큰 것부터 스쿠터를 지점 i로 보내라.
